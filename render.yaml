@@ -1,0 +1,29 @@
+# Deploy vinh vien len Render (free): push repo len GitHub -> Render -> New -> Blueprint -> chon repo nay.
+services:
+  - type: web
+    name: le-thanh-huy-0827-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/app/chamcong.db
+      - key: JWTKey__Secret
+        generateValue: true
+      - key: JWTKey__ValidIssuer
+        value: le_thanh_huy_0827
+      - key: JWTKey__ValidAudience
+        value: le_thanh_huy_0827_app
+      - key: JWTKey__TokenExpiryTimeInHour
+        value: "8"
+      - key: AdminSeed__Email
+        value: admin@congty.vn
+      - key: AdminSeed__Password
+        value: Doi-mat-khau-manh-o-day
+      - key: Google__ClientId
+        value: ""
+      - key: Google__ClientSecret
+        value: ""
