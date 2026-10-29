@@ -42,3 +42,9 @@ using (var scope = app.Services.CreateScope()) {
 if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); }
 // Khong UseHttpsRedirection khi chay sau Cloudflare/Render (TLS ket thuc o edge), tranh loop redirect.
 app.UseCors("MyAllowOrigins"); app.UseAuthentication(); app.UseAuthorization(); app.MapControllers(); app.Run();
+app.UseRouting();
+app.UseCors("MyAllowOrigins");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
