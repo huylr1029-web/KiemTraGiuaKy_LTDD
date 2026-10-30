@@ -19,6 +19,12 @@ class Attendance {
   Map<String, dynamic> toJson() => {'id': id, 'employeeId': employeeId, 'employeeName': employeeName, 'date': date.toIso8601String(), 'checkIn': checkIn?.toIso8601String(), 'checkOut': checkOut?.toIso8601String(), 'status': status, 'note': note};
   double get hours => (checkIn != null && checkOut != null) ? checkOut!.difference(checkIn!).inMinutes / 60 : 0;
 }
+class Appointment {
+  final String id; String customerName; String customerEmail; DateTime date; String reason; String status;
+  Appointment({required this.id, required this.customerName, required this.customerEmail, required this.date, required this.reason, this.status = 'Cho xac nhan'});
+  factory Appointment.fromJson(Map<String, dynamic> j) => Appointment(id: '${j['id']}', customerName: j['customerName'] ?? '', customerEmail: j['customerEmail'] ?? '', date: DateTime.tryParse('${j['date']}') ?? DateTime.now(), reason: j['reason'] ?? '', status: j['status'] ?? 'Cho xac nhan');
+  Map<String, dynamic> toJson() => {'id': id, 'customerName': customerName, 'customerEmail': customerEmail, 'date': date.toIso8601String(), 'reason': reason, 'status': status};
+}
 class LeaveRequest {
   final String id; String employeeId; String employeeName; DateTime from; DateTime to; String reason; String status;
   LeaveRequest({required this.id, required this.employeeId, required this.employeeName, required this.from, required this.to, required this.reason, this.status = 'Cho duyet'});

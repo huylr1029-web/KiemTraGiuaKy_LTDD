@@ -9,13 +9,13 @@ class AdminDashboard extends StatefulWidget { const AdminDashboard({super.key});
 class _A extends State<AdminDashboard> {
   final _crud = CrudService(); int _tab = 0; final _search = TextEditingController();
   bool _loading = true; String? _error;
-  List<Employee> _emps = []; List<Department> _depts = []; List<Attendance> _atts = []; List<LeaveRequest> _leaves = [];
+  List<Employee> _emps = []; List<Department> _depts = []; List<Attendance> _atts = []; List<LeaveRequest> _leaves = []; List<Appointment> _appts = [];
   @override void initState() { super.initState(); _load(); }
   Future<void> _load({String? search}) async {
     setState(() { _loading = true; _error = null; });
     try {
       _emps = await _crud.employees(search: search ?? _search.text);
-      _depts = await _crud.departments(); _atts = await _crud.attendances(); _leaves = await _crud.leaves();
+      _depts = await _crud.departments(); _atts = await _crud.attendances(); _leaves = await _crud.leaves(); _appts = await _crud.appointments();
     } catch (e) { _error = '$e'; }
     if (mounted) setState(() => _loading = false);
   }
@@ -81,6 +81,18 @@ class _A extends State<AdminDashboard> {
             )).toList())),
         Padding(padding: const EdgeInsets.all(16), child: AppButton(label: 'Thêm phòng ban', icon: Icons.add_business, onTap: () => _editDept())),
       ]);
+    } else if (_tab == 4) {
+      body = ListView(padding: const EdgeInsets.all(16), children: [
+        const SectionTitle(title: 'Lịch hẹn của khách hàng', subtitle: 'Admin xác nhận hoặc từ chối lịch hẹn.'),
+        ..._appts.map((a) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Card(child: ListTile(title: Text('${a.customerName}: ${a.reason}'), subtitle: Text('${a.date.day}/${a.date.month}/${a.date.year} - ${a.customerEmail}'), trailing: a.status == 'Cho xac nhan' ? Row(mainAxisSize: MainAxisSize.min, children: [
+                _actionBtn(Icons.check, AppTheme.success, () async { await _crud.updateAppointment(Appointment(id: a.id, customerName: a.customerName, customerEmail: a.customerEmail, date: a.date, reason: a.reason, status: 'Da xac nhan')); await _load(); }),
+                const SizedBox(width: 6),
+                _actionBtn(Icons.close, AppTheme.danger, () async { await _crud.updateAppointment(Appointment(id: a.id, customerName: a.customerName, customerEmail: a.customerEmail, date: a.date, reason: a.reason, status: 'Tu choi')); await _load(); }),
+              ]) : StatusChip(label: a.status, good: a.status == 'Da xac nhan'))),
+            )),
+      ]);
     } else {
       body = ListView(padding: const EdgeInsets.all(16), children: _leaves.map((l) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -94,7 +106,7 @@ class _A extends State<AdminDashboard> {
     return Scaffold(
       appBar: AppBar(title: const Text('Trang quản trị'), actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: () => _load()), IconButton(icon: const Icon(Icons.logout), onPressed: _logout, tooltip: 'Đăng xuất (xóa token)')]),
       body: body,
-      bottomNavigationBar: BottomNavigationBar(currentIndex: _tab, onTap: (i) => setState(() => _tab = i), items: const [BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), label: 'Tổng quan'), BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Nhân viên'), BottomNavigationBarItem(icon: Icon(Icons.business_outlined), label: 'Phòng ban'), BottomNavigationBarItem(icon: Icon(Icons.event_note_outlined), label: 'Đơn nghỉ')]),
+      bottomNavigationBar: BottomNavigationBar(currentIndex: _tab, onTap: (i) => setState(() => _tab = i), items: const [BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), label: 'Tổng quan'), BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Nhân viên'), BottomNavigationBarItem(icon: Icon(Icons.business_outlined), label: 'Phòng ban'), BottomNavigationBarItem(icon: Icon(Icons.event_note_outlined), label: 'Đơn nghỉ'), BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: 'Lịch hẹn')]),
     );
   }
 }

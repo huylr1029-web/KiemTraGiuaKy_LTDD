@@ -49,7 +49,7 @@ class _O extends State<OtpScreen> {
               ]),
             ),
             const SizedBox(height: 20),
-            AppField(c: _c, hint: 'Ví dụ: 123456', label: 'Mã OTP 6 số', prefixIcon: Icons.pin_outlined, type: TextInputType.number),
+            AutofillGroup(child: AppField(c: _c, hint: 'Ví dụ: 123456', label: 'Mã OTP 6 số', prefixIcon: Icons.pin_outlined, type: TextInputType.number, autofillHints: const [AutofillHints.oneTimeCode])),
             const SizedBox(height: 20),
             AppButton(label: 'Xác nhận OTP', icon: Icons.check_circle_outline, loading: _loading, onTap: _verify),
             TextButton(

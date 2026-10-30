@@ -45,6 +45,15 @@ class CrudService {
   Future<void> addLeave(LeaveRequest l) async => _check(await _api.post('LeaveApi', body: l.toJson()));
   Future<void> updateLeave(LeaveRequest l) async => _check(await _api.put('LeaveApi/${l.id}', body: l.toJson()));
   Future<void> deleteLeave(String id) async => _check(await _api.delete('LeaveApi/$id'));
+  Future<List<Appointment>> appointments({String? email}) async {
+    final ep = email == null || email.isEmpty ? 'AppointmentApi' : 'AppointmentApi?email=${Uri.encodeComponent(email)}';
+    final r = await _api.get(ep);
+    if (r.statusCode != 200) throw Exception('Khong tai duoc lich hen (${r.statusCode})');
+    return (jsonDecode(r.body) as List).map((e) => Appointment.fromJson(e)).toList();
+  }
+  Future<void> addAppointment(Appointment a) async => _check(await _api.post('AppointmentApi', body: a.toJson()));
+  Future<void> updateAppointment(Appointment a) async => _check(await _api.put('AppointmentApi/${a.id}', body: a.toJson()));
+  Future<void> deleteAppointment(String id) async => _check(await _api.delete('AppointmentApi/$id'));
   void _check(dynamic r) { if (r.statusCode < 200 || r.statusCode >= 300) throw Exception('API loi ${r.statusCode}: ${r.body}'); }
   String deptName(List<Department> ds, String? id) { for (final d in ds) { if (d.id == id) return d.name; } return 'Chua phan phong'; }
 }

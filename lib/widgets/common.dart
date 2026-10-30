@@ -13,13 +13,15 @@ class AppField extends StatelessWidget {
   final TextInputType? type;
   final Widget? suffix;
   final ValueChanged<String>? onChanged;
-  const AppField({super.key, required this.c, required this.hint, this.label, this.prefixIcon, this.obscure = false, this.type, this.suffix, this.onChanged});
+  final Iterable<String>? autofillHints;
+  const AppField({super.key, required this.c, required this.hint, this.label, this.prefixIcon, this.obscure = false, this.type, this.suffix, this.onChanged, this.autofillHints});
   @override
   Widget build(BuildContext context) => TextField(
         controller: c,
         obscureText: obscure,
         keyboardType: type,
         onChanged: onChanged,
+        autofillHints: autofillHints,
         decoration: InputDecoration(
           hintText: hint,
           labelText: label,
