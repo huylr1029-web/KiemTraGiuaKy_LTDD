@@ -63,6 +63,16 @@ public class AuthenticateController : ControllerBase {
     await GenerateAndSendOtpAsync(user);
     return Ok(new { Status = true, Message = "OTP da duoc gui" });
   }
+  // Cai dat app: xac minh lai mat khau truoc khi bat dang nhap sinh trac.
+  // Chi kiem tra mat khau cua chinh tai khoan dang co JWT, KHONG gui OTP moi,
+  // KHONG cap token moi. Sai mat khau -> 401, khong bat duoc sinh trac.
+  [HttpPost("verify-password")] [Microsoft.AspNetCore.Authorization.Authorize] public async Task<IActionResult> VerifyPassword([FromBody] VerifyPasswordModel m) {
+    var user = await _um.GetUserAsync(User); if (user == null) return Unauthorized();
+    if (string.IsNullOrEmpty(m.Password)) return BadRequest(new { Message = "Chua nhap mat khau" });
+    return await _um.CheckPasswordAsync(user, m.Password)
+      ? Ok(new { Status = true, Message = "Mat khau dung" })
+      : Unauthorized(new { Status = false, Message = "Sai mat khau" });
+  }
   // Buoc 2: verify OTP dung moi cap JWT.
   [HttpPost("verify-otp")] public async Task<IActionResult> VerifyOtp([FromBody] OtpModel m) {
     if (!_otps.TryGetValue(m.Username, out var otp) || otp.Exp < DateTime.UtcNow || otp.Code != m.Code)
@@ -121,3 +131,4 @@ public class AuthenticateController : ControllerBase {
   }
 }
 public class OtpModel { public string Username { get; set; } = ""; public string Code { get; set; } = ""; }
+public class VerifyPasswordModel { public string Password { get; set; } = ""; }

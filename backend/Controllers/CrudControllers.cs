@@ -15,6 +15,18 @@ public class EmployeeApiController : ControllerBase {
     return e == null ? NotFound() : Ok(e);
   }
   [HttpGet("{id:int}")] public async Task<IActionResult> GetById(int id) { var e = await _r.GetByIdAsync(id); return e == null ? NotFound() : Ok(e); }
+  // Cai dat app: chinh chu tu cap nhat ho so cua minh.
+  // Khac PUT {id} chi danh cho Admin: endpoint nay chi cho phep doi Ho ten va
+  // Chuc vu cua dung ho so thuoc ve tai khoan dang co JWT (Name hoac Email
+  // trung ten dang nhap truoc khi doi), KHONG doi duoc Role, Email, Phong ban.
+  [HttpPut("me")] public async Task<IActionResult> UpdateMe([FromBody] Employee e) {
+    var name = User.Identity?.Name;
+    var own = await _db.Employees.FirstOrDefaultAsync(x => x.Id == e.Id && (x.Email == name || x.Name == name));
+    if (own == null) return Forbid();
+    if (!string.IsNullOrWhiteSpace(e.Name)) own.Name = e.Name;
+    if (!string.IsNullOrWhiteSpace(e.Position)) own.Position = e.Position;
+    await _db.SaveChangesAsync(); return Ok(own);
+  }
   [HttpGet("search")] public async Task<IActionResult> Search([FromQuery] string name) { var all = await _r.GetAllAsync(); return Ok(all.Where(e => (e.Name ?? "").Contains(name, StringComparison.OrdinalIgnoreCase))); }
   [HttpPost] [Authorize(Roles = "Admin")] public async Task<IActionResult> Add([FromBody] Employee e) { await _r.AddAsync(e); return CreatedAtAction(nameof(GetById), new { id = e.Id }, e); }
   [HttpPut("{id:int}")] [Authorize(Roles = "Admin")] public async Task<IActionResult> Update(int id, [FromBody] Employee e) { if (id != e.Id) return BadRequest(); await _r.UpdateAsync(e); return NoContent(); }
